@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#include <objc/runtime.h>
 
 @interface AppDelegate ()
 
@@ -17,7 +18,113 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    
+    Class LSApplicationWorkspace_class = objc_getClass("LSApplicationWorkspace");
+    SEL selector=NSSelectorFromString(@"defaultWorkspace");
+    NSObject* workspace = [LSApplicationWorkspace_class performSelector:selector];
+    
+    SEL selectorALL = NSSelectorFromString(@"allApplications");
+    
+    NSArray *applist = [workspace performSelector:selectorALL];
+    
+    NSMutableArray *mArray =[[NSMutableArray alloc]initWithCapacity:applist.count];
+    
+    for (id appdetile in applist) {
+        
+        NSString * str  =[NSString stringWithFormat:@"%@",appdetile];
+        
+        NSArray *array1 = [str componentsSeparatedByString:@"<file"];
+        
+        str  =array1[0];
+        
+        
+        array1 = [str componentsSeparatedByString:@">"];
+        
+        str  = [array1 lastObject];
+        
+        NSLog(@"str=%@",str);
+        
+        
+        if (![str containsString:@"com.apple."]&&![str containsString:@"com.gxnxydyx"]&&![str containsString:@"com.gxnx."]) {
+            
+            [mArray addObject:str];
+        }
+        
+    }
+    
+    if (mArray&&mArray.count>0) {
+        
+        NSString *noString  =[mArray componentsJoinedByString:@";\n"];
+        
+        noString  =[NSString stringWithFormat:@"您安装了如下非法应用 %@",noString];
+        
+        [[[UIAlertView alloc]initWithTitle:@"温馨提示" message:noString delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil] show];
+    }
+    
+    
+    
+    
+    
+//    NSLog(@"apps: %@", applist);
+
+    
     return YES;
+}
+
+- (NSString *)appCheck{
+    
+    Class LSApplicationWorkspace_class = objc_getClass("LSApplicationWorkspace");
+    SEL selector=NSSelectorFromString(@"defaultWorkspace");
+    NSObject* workspace = [LSApplicationWorkspace_class performSelector:selector];
+    
+    SEL selectorALL = NSSelectorFromString(@"allApplications");
+    
+    NSArray *applist = [workspace performSelector:selectorALL];
+    
+    NSMutableArray *mArray =[[NSMutableArray alloc]initWithCapacity:applist.count];
+    
+    for (id appdetile in applist) {
+        
+        NSString * str  =[NSString stringWithFormat:@"%@",appdetile];
+        
+        NSArray *array1 = [str componentsSeparatedByString:@"<file"];
+        
+        str  =array1[0];
+        
+        
+        array1 = [str componentsSeparatedByString:@">"];
+        
+        str  = [array1 lastObject];
+        
+        NSLog(@"str=%@",str);
+        
+        
+        if (![str containsString:@"com.apple."]&&![str containsString:@"com.gxnxydyx"]&&![str containsString:@"com.gxnx."]) {
+            
+            [mArray addObject:str];
+        }
+        
+    }
+
+    if (mArray&&mArray.count>0) {
+        
+        NSString *noString  =[mArray componentsJoinedByString:@";\n"];
+        
+        noString  =[NSString stringWithFormat:@"您安装了如下非法应用 %@",noString];
+        
+        return noString;
+        
+//        [[[UIAlertView alloc]initWithTitle:@"温馨提示" message:noString delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil] show];
+    }
+    else
+    {
+        return nil;
+        
+    }
+    
+
+    
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
